@@ -1,0 +1,13 @@
+{
+  "name": "suitecloud-project",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "jest",
+    "importScript": "suitecloud file:import --paths /SuiteScripts/seiu_RL_viewForm.js",
+    "uploadScript": "suitecloud file:upload --paths /SuiteScripts/seiu_RL_viewForm.js"
+  },
+  "devDependencies": {
+    "jest": "^27.4.7",
+    "@oracle/suitecloud-unit-testing": "^1.2.0"
+  }
+}
