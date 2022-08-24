@@ -97,7 +97,7 @@ define(["N/record", "N/file", "N/error"], function (record, file, error) {
 
     try {
       const bodyFields = {
-        customer: "custbody_local_customer",
+        localList: "custbody_local_customer",
         localCode: "cseg_local_code",
         status: "custbody_status",
         date_transmitted: "custbody_date_transmitted",

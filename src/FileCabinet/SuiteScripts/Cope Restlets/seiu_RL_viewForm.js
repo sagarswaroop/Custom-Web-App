@@ -44,7 +44,7 @@ define(["N/record", "N/error", "N/file"], function (record, error, file) {
     const copeForm = {
       recordId: "id",
       body: {
-        customer: "custbody_local_customer",
+        localList: "custbody_local_customer",
         localCode: "cseg_local_code",
         status: "custbody_status",
         date_transmitted: "custbody_date_transmitted",
@@ -92,7 +92,7 @@ define(["N/record", "N/error", "N/file"], function (record, error, file) {
 
             if(fileID)
             copeForm.body[bodyFieldKey] = getAttachedFile(fileID);
-          }else if(bodyFieldKey == "customer"){
+          }else if(bodyFieldKey == "localList"){
             const resLocalId = copeRecord.getValue({
               fieldId: copeForm.body[bodyFieldKey],
             });

@@ -10,7 +10,7 @@
 define(["N/record", "N/error", "N/search"], function (record, error, search) {
   function setObligationRecordTotalAmount(localCustomer, year) {
     const obligationRecordFeilds = {
-      localist: "custrecord218",
+      localList: "custrecord218",
       obligationAmount: "custrecord219",
       contributionAmount: "custrecord220",
       year: "custrecord_script_year",
@@ -79,9 +79,9 @@ define(["N/record", "N/error", "N/search"], function (record, error, search) {
         }
 
         return {
-          Success : true,
-          Data : obligationRecordFeilds
-        }
+          Success: true,
+          Data: obligationRecordFeilds,
+        };
 
         log.debug(
           "obligation record repsonse object is",
@@ -93,7 +93,7 @@ define(["N/record", "N/error", "N/search"], function (record, error, search) {
         Success: false,
         Data: {
           Name: "DATA_NOT_FOUND",
-          Message : `No record found for ${localCustomer}`
+          Message: `No record found for ${localCustomer}`,
         },
       };
     }
@@ -108,41 +108,47 @@ define(["N/record", "N/error", "N/search"], function (record, error, search) {
   }
 
   function doValidation(args, argNames, methodName) {
-    for (var i = 0; i < args.length; i++)
+    for (var i = 0; i < args.length; i++){
       if (!args[i] && args[i] !== 0)
-        throw {
-          Status: false,
-          Name : "MISSING_REQ_ARG",
-          Message :  "Missing a required argument: [" +
+      throw {
+        Status: false,
+        Name: "MISSING_REQ_ARG",
+        Message:
+          "Missing a required argument: [" +
           argNames[i] +
           "] for method: " +
           methodName,
-        }
+      };
+    }
   }
 
-  function genericError(method){
+  function genericError(method) {
     return {
       Status: false,
-      Name : "PAGE_NOT_FOUND",
-      Message :  `Requested Page is not found for '${method}'`,
+      Name: "PAGE_NOT_FOUND",
+      Message: `Requested Page is not found for '${method}'`,
     };
   }
 
   function _get(context) {
-
-    log.debug(
-      "",
-      `custoemr is ${context.local_customer} and year is ${context.obligation_year} `
-    );
-
-    doValidation([context.local_customer,context.obligation_year],["local_customer","obligation_year"],"GET");
-
-    //serach the record of localist for a specific year in record list.
-
-    return setObligationRecordTotalAmount(
-      context.local_customer,
-      context.obligation_year
-    );
+    try {
+      log.debug(
+        "",
+        `customer is ${context.localList} and year is ${context.year} `
+      );
+  
+      doValidation(
+        [context.localList, context.year],
+        ["localList", "year"],
+        "GET"
+      );
+  
+      //serach the record of localist for a specific year in record list.
+  
+      return setObligationRecordTotalAmount(context.localList, context.year);
+    } catch (error) {
+      return error;
+    }
   }
 
   function _post(context) {
