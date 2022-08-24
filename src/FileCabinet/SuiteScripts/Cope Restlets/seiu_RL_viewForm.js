@@ -4,21 +4,43 @@
  *@author Sagar Kumar
  *@description it will return record data on behalf record internla id which will be given by source API.
  */
-define(["N/record", "N/error"], function (record, error) {
-  function doValidation(args, argNames, methodName) {
-    for (var i = 0; i < args.length; i++)
-      if (!args[i] && args[i] !== 0)
-        throw error.create({
-          name: "MISSING_REQ_ARG",
-          message:
-            "Missing a required argument: [" +
+define(["N/record", "N/error", "N/file"], function (record, error, file) {
+
+    function doValidation(args, argNames, methodName) {
+      for (var i = 0; i < args.length; i++)
+        if (!args[i] && args[i] !== 0)
+          throw {
+            Status: false,
+            Name : "MISSING_REQ_ARG",
+            Message :  "Missing a required argument: [" +
             argNames[i] +
             "] for method: " +
             methodName,
-        });
+          }
+    }
+  
+    function genericError(method){
+      return {
+        Status: false,
+        Name : "PAGE_NOT_FOUND",
+        Message :  `Requested Page is not found for '${method}'`,
+      };
+    }
+
+  function getAttachedFile(fileId) {
+    const fileObj = file.load({
+      id: fileId,
+    });
+
+    return {
+      id: fileId,
+      name: fileObj.name,
+      url: fileObj.url,
+    };
   }
 
   function _get(context) {
+    const RECORDTYPE = "customtransaction108";
     const copeForm = {
       recordId: "id",
       body: {
@@ -28,7 +50,7 @@ define(["N/record", "N/error"], function (record, error) {
         date_transmitted: "custbody_date_transmitted",
         RejectionReasion: "custbody_rejected_comments",
         memo: "memo",
-        date_bankRechived: "custbody_seiu_cope_bank_rec_date",
+        date_bankRecived: "custbody_seiu_cope_bank_rec_date",
         revisedDate_transmitted: "custbody_2nd_date_transmitted",
         postingDate: "trandate",
         nonQualifying_Amount_LOCAL: "custbody_local_non_qualifying_fund",
@@ -42,17 +64,19 @@ define(["N/record", "N/error"], function (record, error) {
         isFedPac: "custbody_seiu_pac_bank_acc",
         formYear: "custbodycope_year",
         rejectedBy: "custbodyrejected_by",
+        fileAttachment: "custbody_seiu_support_docs",
       },
       lines: [],
     };
 
     try {
       //Validate the record data is correct if not then through custom error.
-      doValidation([context.id], ["id"], "GET");
+      const localId = context.localList;
+      doValidation([context.id,context.localList], ["id","localList"], "GET");
 
       //load required record that id sent by requester.
       const copeRecord = record.load({
-        type: "customtransaction108",
+        type: RECORDTYPE,
         id: context.id,
       });
 
@@ -61,9 +85,30 @@ define(["N/record", "N/error"], function (record, error) {
       // Map required body fields of record.
       for (const bodyFieldKey in copeForm.body) {
         if (copeForm.body.hasOwnProperty.call(copeForm.body, bodyFieldKey)) {
-          copeForm.body[bodyFieldKey] = copeRecord.getValue({
-            fieldId: copeForm.body[bodyFieldKey],
-          });
+          if (bodyFieldKey == "fileAttachment") {
+            const fileID = copeRecord.getValue({
+              fieldId: copeForm.body[bodyFieldKey],
+            });
+
+            if(fileID)
+            copeForm.body[bodyFieldKey] = getAttachedFile(fileID);
+          }else if(bodyFieldKey == "customer"){
+            const resLocalId = copeRecord.getValue({
+              fieldId: copeForm.body[bodyFieldKey],
+            });
+            if(resLocalId == localId){
+              copeForm.body[bodyFieldKey] = copeRecord.getValue({
+                fieldId: copeForm.body[bodyFieldKey],
+              });
+            }else{
+              return genericError(localId);
+            }
+          } else {
+            copeForm.body[bodyFieldKey] = copeRecord.getValue({
+              fieldId: copeForm.body[bodyFieldKey],
+            });
+          }
+
           // copeForm.body[bodyFieldKey] = fieldValue
         }
       }
@@ -136,38 +181,20 @@ define(["N/record", "N/error"], function (record, error) {
         data: copeForm,
       };
     } catch (error) {
-      return {
-        success : false,
-        data: error.message,
-      };
+     return error
     }
   }
 
   function _post(context) {
-    return {
-      Success: "false",
-      error: {
-        Message: "This method is not allowed.",
-      },
-    };
+    return genericError("POST");
   }
 
   function _delete(context) {
-    return {
-      Success: "false",
-      error: {
-        Message: "This method is not allowed.",
-      },
-    };
+    return genericError("DELETE");
   }
 
   function _put(context) {
-    return {
-      Success: "false",
-      error: {
-        Message: "This method is not allowed.",
-      },
-    };
+    return genericError("PUT");
   }
 
   return {

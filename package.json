@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "test": "jest",
-    "importScript": "suitecloud file:import --paths /SuiteScripts/seiu_RL_viewForm.js",
-    "uploadScript": "suitecloud file:upload --paths /SuiteScripts/seiu_RL_viewForm.js"
+    "importScript": "suitecloud file:import --paths /SuiteScripts/Cope Restlets/seiu_RL_viewForm.js",
+    "uploadScript": "suitecloud file:upload --paths /SuiteScripts/Cope Restlets/seiu_RL_viewForm.js"
   },
   "devDependencies": {
     "jest": "^27.4.7",
